@@ -133,3 +133,22 @@ Initial during package with the default `pom.xml` on both the client and server 
 **Resolution**
 Both client and server modules `pom.xml` needs to have their <build> instructions. Apparently the server and the client <build> instructions. If we attempt to use the server module `pom.xml` into the client module, issue 1 and issue 2 will appear.
 
+---
+
+## Starting with Open Telemetry Instrumentation jar
+
+The transaction is split into 2 separate traces without the context propagating across. 
+
+![jaeger](./images/Jaeger-trace-with-agent.png)
+
+
+- To start the server application
+```shell script
+java -javaagent:./opentelemetry-javaagent.jar -cp ./grpc-server/target/grpc-server-jar-with-dependencies.jar com.opentelemetry.grpc.BookeStoreServerMetadata
+```
+
+
+- To start the client application
+```shell script
+java -javaagent:./opentelemetry-javaagent.jar -cp ./grpc-client/target/grpc-client.jar com.opentelemetry.grpc.BookStoreClientUnaryBlockingMetadata Great
+```
