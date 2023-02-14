@@ -137,6 +137,8 @@ Both client and server modules `pom.xml` needs to have their <build> instruction
 
 ## Starting with Open Telemetry Instrumentation jar
 
+### Observation 1
+
 The transaction is split into 2 separate traces without the context propagating across. 
 
 ![jaeger](./images/Jaeger-trace-with-agent.png)
@@ -152,3 +154,24 @@ java -javaagent:./opentelemetry-javaagent.jar -cp ./grpc-server/target/grpc-serv
 ```shell script
 java -javaagent:./opentelemetry-javaagent.jar -cp ./grpc-client/target/grpc-client.jar com.opentelemetry.grpc.BookStoreClientUnaryBlockingMetadata Great
 ```
+
+
+### Observation 2
+
+What if we include the environment variable to the startup command   
+
+`-Dotel.resource.attributes=service.name=grpc.example`    
+`-Dotel.traces.exporter=jaeger` 
+
+- To start the server application
+```shell script
+java -javaagent:./opentelemetry-javaagent.jar -Dotel.resource.attributes=service.name=grpc.example -Dotel.traces.exporter=jaeger  -cp ./grpc-server/target/grpc-server-jar-with-dependencies.jar com.opentelemetry.grpc.BookeStoreServerMetadata 
+```
+
+
+- To start the client application
+```shell script
+java -javaagent:./opentelemetry-javaagent.jar  -Dotel.resource.attributes=service.name=grpc.example -Dotel.traces.exporter=jaeger -cp ./grpc-client/target/grpc-client.jar com.opentelemetry.grpc.BookStoreClientUnaryBlockingMetadata Great
+```
+![jaeger](./images/Jaeger-trace-with-agent-env-configured.png)
+The transaction is split into 2 separate traces without the context propagating across. However as expected, with Otel agent added we see more protocol instrumented
