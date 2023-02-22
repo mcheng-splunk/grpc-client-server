@@ -165,13 +165,38 @@ What if we include the environment variable to the startup command
 
 - To start the server application
 ```shell script
-java -javaagent:./opentelemetry-javaagent.jar -Dotel.resource.attributes=service.name=grpc.example -Dotel.traces.exporter=jaeger  -cp ./grpc-server/target/grpc-server-jar-with-dependencies.jar com.opentelemetry.grpc.BookeStoreServerMetadata 
+java -javaagent:./opentelemetry-javaagent.jar -Dotel.resource.attributes=service.name=grpc.example -Dotel.metrics.exporter=logging -Dotel.traces.exporter=jaeger  -cp ./grpc-server/target/grpc-server-jar-with-dependencies.jar com.opentelemetry.grpc.BookeStoreServerMetadata 
 ```
 
 
 - To start the client application
 ```shell script
-java -javaagent:./opentelemetry-javaagent.jar  -Dotel.resource.attributes=service.name=grpc.example -Dotel.traces.exporter=jaeger -cp ./grpc-client/target/grpc-client.jar com.opentelemetry.grpc.BookStoreClientUnaryBlockingMetadata Great
+java -javaagent:./opentelemetry-javaagent.jar  -Dotel.resource.attributes=service.name=grpc.example -Dotel.metrics.exporter=logging=logging -Dotel.traces.exporter=jaeger -cp ./grpc-client/target/grpc-client.jar com.opentelemetry.grpc.BookStoreClientUnaryBlockingMetadata Great
 ```
 ![jaeger](./images/Jaeger-trace-with-agent-env-configured.png)
 The transaction is split into 2 separate traces without the context propagating across. However as expected, with Otel agent added we see more protocol instrumented
+
+### Observation 3
+
+We updated the following environment variable to the startup command
+
+~~-Dotel.resource.attributes=service.name=grpc.example~~
+`-Dotel.metrics.exporter=logging=logging`
+
+
+- To start the server application
+```shell script
+java -javaagent:./opentelemetry-javaagent.jar -Dotel.metrics.exporter=logging -Dotel.traces.exporter=jaeger  -cp ./grpc-server/target/grpc-server-jar-with-dependencies.jar com.opentelemetry.grpc.BookeStoreServerMetadata
+```
+
+- To start the client application
+```shell script
+java -javaagent:./opentelemetry-javaagent.jar  -Dotel.metrics.exporter=logging=logging -Dotel.traces.exporter=jaeger -cp ./grpc-client/target/grpc-client.jar com.opentelemetry.grpc.BookStoreClientUnaryBlockingMetadata Great
+```
+This is the output that we should be expecting. Note that we did not change any code but just updated the environment variable to the startup command.
+
+![jaeger](./images/Jaeger-trace-with-agent-env-reconfigured-3.png)
+Trace overview
+
+![jaeger](./images/Jaeger-trace-with-agent-env-reconfigured-2.png)
+In depth view of the trace
